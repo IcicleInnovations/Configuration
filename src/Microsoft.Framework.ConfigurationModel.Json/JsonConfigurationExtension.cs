@@ -5,9 +5,13 @@ namespace Microsoft.Framework.ConfigurationModel
 {
     public static class JsonConfigurationExtension
     {
-        public static IConfigurationSourceContainer AddJsonFile(this IConfigurationSourceContainer configuration, string path)
+        public static IConfigurationSourceContainer AddJsonFile(this IConfigurationSourceContainer configuration, string path, IConfigurationStreamHandler streamHandler = null)
         {
-            configuration.Add(new JsonConfigurationSource(path));
+			if (streamHandler == null)
+				streamHandler = new FileConfigurationStreamHandler();
+
+            configuration.Add(new JsonConfigurationSource(streamHandler, path));
+
             return configuration;
         }
     }

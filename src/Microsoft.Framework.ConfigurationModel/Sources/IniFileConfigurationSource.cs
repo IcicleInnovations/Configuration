@@ -9,93 +9,39 @@ using System.Linq;
 
 namespace Microsoft.Framework.ConfigurationModel
 {
-    public class IniFileConfigurationSource : BaseConfigurationSource, ICommitableConfigurationSource
+    public class IniFileConfigurationSource : BaseStreamConfigurationSource, ICommitableConfigurationSource
     {
-        // http://en.wikipedia.org/wiki/INI_file
-        /// <summary>
-        /// Files are simple line structures
-        /// [Section:Header]
-        /// key1=value1
-        /// key2 = " value2 "
-        /// ; comment
-        /// # comment
-        /// / comment
-        /// </summary>
-        /// <param name="path">The path and file name to load.</param>
-        public IniFileConfigurationSource(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                throw new ArgumentException(Resources.Error_InvalidFilePath, "path");
-            }
+		// http://en.wikipedia.org/wiki/INI_file
+		/// <summary>
+		/// Files are simple line structures
+		/// [Section:Header]
+		/// key1=value1
+		/// key2 = " value2 "
+		/// ; comment
+		/// # comment
+		/// / comment
+		/// </summary>
+		/// <param name="path">The path and file name to load.</param>
+		public IniFileConfigurationSource(string path)
+			: this(new FileConfigurationStreamHandler(), path)
+        { }
 
-            Path = PathResolver.ResolveAppRelativePath(path);
-        }
+		/// <summary>
+		/// Files are simple line structures
+		/// [Section:Header]
+		/// key1=value1
+		/// key2 = " value2 "
+		/// ; comment
+		/// # comment
+		/// / comment
+		/// </summary>
+		/// <param name="streamHandler">The stream handler.</param>
+		/// <param name="path">The path and file name to load.</param>
+		public IniFileConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
+			: base(streamHandler, path)
+        { }
 
-        public string Path { get; private set; }
-
-        public override void Load()
-        {
-            using (var stream = new FileStream(Path, FileMode.Open, FileAccess.Read))
-            {
-                Load(stream);
-            }
-        }
-        
-        public virtual void Commit()
-        {
-            // If the config file is not found in given path
-            // i.e. we don't have a template to follow when generating contents of new config file
-            if (!File.Exists(Path))
-            {
-                var newConfigFileStream = new FileStream(Path, FileMode.CreateNew);
-
-                try
-                {
-                    // Generate contents and write it to the newly created config file
-                    GenerateNewConfig(newConfigFileStream);
-                }
-                catch
-                {
-                    newConfigFileStream.Dispose();
-
-                    // The operation should be atomic because we don't want a corrupted config file
-                    // So we roll back if the operation fails
-                    if (File.Exists(Path))
-                    {
-                        File.Delete(Path);
-                    }
-
-                    // Rethrow the exception
-                    throw;
-                }
-                finally
-                {
-                    newConfigFileStream.Dispose();
-                }
-
-                return;
-            }
-
-            // Because we need to read the original contents while generating new contents, the new contents are
-            // cached in memory and used to overwrite original contents after we finish reading the original contents
-            using (var cacheStream = new MemoryStream())
-            {
-                using (var inputStream = new FileStream(Path, FileMode.Open))
-                {
-                    Commit(inputStream, cacheStream);
-                }
-
-                // Use the cached new contents to overwrite original contents
-                cacheStream.Seek(0, SeekOrigin.Begin);
-                using (var outputStream = new FileStream(Path, FileMode.Truncate))
-                {
-                    cacheStream.CopyTo(outputStream);
-                }
-            }
-        }
-
-        internal void Load(Stream stream)
+		public override void Load(Stream stream)
         {
             var data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -154,9 +100,9 @@ namespace Microsoft.Framework.ConfigurationModel
             ReplaceData(data);
         }
 
-        // Use the original file as a template while generating new file contents
-        // to make sure the format is consistent and comments are not lost
-        internal void Commit(Stream inputStream, Stream outputStream)
+		// Use the original file as a template while generating new file contents
+		// to make sure the format is consistent and comments are not lost
+		public override void Commit(Stream inputStream, Stream outputStream)
         {
             var processedKeys = new HashSet<string>();
             var outputWriter = new StreamWriter(outputStream);
@@ -245,8 +191,8 @@ namespace Microsoft.Framework.ConfigurationModel
             }
         }
 
-        // Write the contents of newly created config file to given stream
-        internal void GenerateNewConfig(Stream outputStream)
+		// Write the contents of newly created config file to given stream
+		public override void GenerateNewConfig(Stream outputStream)
         {
             var outputWriter = new StreamWriter(outputStream);
 

@@ -5,10 +5,14 @@ namespace Microsoft.Framework.ConfigurationModel
 {
     public static class XmlConfigurationExtension
     {
-        public static IConfigurationSourceContainer AddXmlFile(this IConfigurationSourceContainer configuration, string path)
-        {
-            configuration.Add(new XmlConfigurationSource(path));
-            return configuration;
+        public static IConfigurationSourceContainer AddXmlFile(this IConfigurationSourceContainer configuration, string path, IConfigurationStreamHandler streamHandler = null)
+		{
+			if (streamHandler == null)
+				streamHandler = new FileConfigurationStreamHandler();
+
+			configuration.Add(new XmlConfigurationSource(streamHandler, path));
+
+			return configuration;
         }
     }
 }

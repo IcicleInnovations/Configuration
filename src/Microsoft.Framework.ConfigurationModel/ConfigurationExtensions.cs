@@ -17,10 +17,14 @@ namespace Microsoft.Framework.ConfigurationModel
 
 
 #if NET45 || ASPNET50 || ASPNETCORE50
-        public static IConfigurationSourceContainer AddIniFile(this IConfigurationSourceContainer configuration, string path)
+        public static IConfigurationSourceContainer AddIniFile(this IConfigurationSourceContainer configuration, string path, IConfigurationStreamHandler streamHandler = null)
         {
-            configuration.Add(new IniFileConfigurationSource(path));
-            return configuration;
+			if (streamHandler == null)
+				streamHandler = new FileConfigurationStreamHandler();
+
+            configuration.Add(new IniFileConfigurationSource(streamHandler, path));
+
+			return configuration;
         }
 #endif
 
