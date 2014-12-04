@@ -15,24 +15,24 @@ namespace Microsoft.Framework.ConfigurationModel
     {
         private const string NameAttributeKey = "Name";
 
-		public XmlConfigurationSource(string path)
-			: this(new FileConfigurationStreamHandler(), path)
-		{ }
+        public XmlConfigurationSource(string path)
+            : this(new FileConfigurationStreamHandler(), path)
+        { }
 
-		public XmlConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
-			: base(streamHandler, path)
-		{ }
+        public XmlConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
+            : base(streamHandler, path)
+        { }
 
-        public override void Load(Stream stream)
+        internal override void Load(Stream stream)
         {
             var data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             var readerSettings = new XmlReaderSettings()
-                {
-                    DtdProcessing = DtdProcessing.Prohibit,
-                    IgnoreComments = true,
-                    IgnoreWhitespace = true
-                };
+            {
+                DtdProcessing = DtdProcessing.Prohibit,
+                IgnoreComments = true,
+                IgnoreWhitespace = true
+            };
 
             using (var reader = XmlReader.Create(stream, readerSettings))
             {
@@ -98,7 +98,7 @@ namespace Microsoft.Framework.ConfigurationModel
                             break;
 
                         default:
-                            throw new FormatException(Resources.FormatError_UnsupportedNodeType( reader.NodeType,
+                            throw new FormatException(Resources.FormatError_UnsupportedNodeType(reader.NodeType,
                                 GetLineInfo(reader)));
                     }
                     preNodeType = reader.NodeType;
@@ -116,27 +116,27 @@ namespace Microsoft.Framework.ConfigurationModel
             ReplaceData(data);
         }
 
-		// Use the original file as a template while generating new file contents
-		// to make sure the format is consistent and comments are not lost
-		public override void Commit(Stream inputStream, Stream outputStream)
+        // Use the original file as a template while generating new file contents
+        // to make sure the format is consistent and comments are not lost
+        internal override void Commit(Stream inputStream, Stream outputStream)
         {
             var dataCopy = new Dictionary<string, string>(Data, StringComparer.OrdinalIgnoreCase);
 
             var writerSettings = new XmlWriterSettings()
-                {
-                    Indent = false,
-                    ConformanceLevel = ConformanceLevel.Auto
-                };
+            {
+                Indent = false,
+                ConformanceLevel = ConformanceLevel.Auto
+            };
 
             var outputWriter = XmlWriter.Create(outputStream, writerSettings);
 
             var readerSettings = new XmlReaderSettings()
-                {
-                    DtdProcessing = DtdProcessing.Prohibit,
-                    IgnoreWhitespace = false,
-                    IgnoreComments = false,
-                    IgnoreProcessingInstructions = false
-                };
+            {
+                DtdProcessing = DtdProcessing.Prohibit,
+                IgnoreWhitespace = false,
+                IgnoreComments = false,
+                IgnoreProcessingInstructions = false
+            };
 
             using (var inputReader = XmlReader.Create(inputStream, readerSettings))
             {
@@ -249,14 +249,14 @@ namespace Microsoft.Framework.ConfigurationModel
             }
         }
 
-		// Write the contents of newly created config file to given stream
-		public override void GenerateNewConfig(Stream outputStream)
+        // Write the contents of newly created config file to given stream
+        internal override void GenerateNewConfig(Stream outputStream)
         {
             var writerSettings = new XmlWriterSettings()
-                {
-                    Indent = true,
-                    ConformanceLevel = ConformanceLevel.Document
-                };
+            {
+                Indent = true,
+                ConformanceLevel = ConformanceLevel.Document
+            };
 
             var outputWriter = XmlWriter.Create(outputStream, writerSettings);
 
@@ -330,7 +330,7 @@ namespace Microsoft.Framework.ConfigurationModel
         private static string GetLineInfo(XmlReader reader)
         {
             var lineInfo = reader as IXmlLineInfo;
-            return lineInfo == null ?  string.Empty :
+            return lineInfo == null ? string.Empty :
                 Resources.FormatMsg_LineInfo(lineInfo.LineNumber, lineInfo.LinePosition);
         }
 

@@ -7,8 +7,8 @@ namespace Microsoft.Framework.ConfigurationModel
     {
         public static IConfigurationSourceContainer AddJsonFile(this IConfigurationSourceContainer configuration, string path, IConfigurationStreamHandler streamHandler = null)
         {
-			if (streamHandler == null)
-				streamHandler = new FileConfigurationStreamHandler();
+            if (streamHandler == null)
+                streamHandler = new FileConfigurationStreamHandler();
 
             configuration.Add(new JsonConfigurationSource(streamHandler, path));
 

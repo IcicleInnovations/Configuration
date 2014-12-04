@@ -6,13 +6,13 @@ namespace Microsoft.Framework.ConfigurationModel
     public static class XmlConfigurationExtension
     {
         public static IConfigurationSourceContainer AddXmlFile(this IConfigurationSourceContainer configuration, string path, IConfigurationStreamHandler streamHandler = null)
-		{
-			if (streamHandler == null)
-				streamHandler = new FileConfigurationStreamHandler();
+        {
+            if (streamHandler == null)
+                streamHandler = new FileConfigurationStreamHandler();
 
-			configuration.Add(new XmlConfigurationSource(streamHandler, path));
+            configuration.Add(new XmlConfigurationSource(streamHandler, path));
 
-			return configuration;
+            return configuration;
         }
     }
 }

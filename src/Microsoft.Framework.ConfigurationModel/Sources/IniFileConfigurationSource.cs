@@ -11,37 +11,37 @@ namespace Microsoft.Framework.ConfigurationModel
 {
     public class IniFileConfigurationSource : BaseStreamConfigurationSource, ICommitableConfigurationSource
     {
-		// http://en.wikipedia.org/wiki/INI_file
-		/// <summary>
-		/// Files are simple line structures
-		/// [Section:Header]
-		/// key1=value1
-		/// key2 = " value2 "
-		/// ; comment
-		/// # comment
-		/// / comment
-		/// </summary>
-		/// <param name="path">The path and file name to load.</param>
-		public IniFileConfigurationSource(string path)
-			: this(new FileConfigurationStreamHandler(), path)
+        // http://en.wikipedia.org/wiki/INI_file
+        /// <summary>
+        /// Files are simple line structures
+        /// [Section:Header]
+        /// key1=value1
+        /// key2 = " value2 "
+        /// ; comment
+        /// # comment
+        /// / comment
+        /// </summary>
+        /// <param name="path">The path and file name to load.</param>
+        public IniFileConfigurationSource(string path)
+            : this(new FileConfigurationStreamHandler(), path)
         { }
 
-		/// <summary>
-		/// Files are simple line structures
-		/// [Section:Header]
-		/// key1=value1
-		/// key2 = " value2 "
-		/// ; comment
-		/// # comment
-		/// / comment
-		/// </summary>
-		/// <param name="streamHandler">The stream handler.</param>
-		/// <param name="path">The path and file name to load.</param>
-		public IniFileConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
-			: base(streamHandler, path)
+        /// <summary>
+        /// Files are simple line structures
+        /// [Section:Header]
+        /// key1=value1
+        /// key2 = " value2 "
+        /// ; comment
+        /// # comment
+        /// / comment
+        /// </summary>
+        /// <param name="streamHandler">The stream handler.</param>
+        /// <param name="path">The path and file name to load.</param>
+        public IniFileConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
+            : base(streamHandler, path)
         { }
 
-		public override void Load(Stream stream)
+        internal override void Load(Stream stream)
         {
             var data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -100,9 +100,9 @@ namespace Microsoft.Framework.ConfigurationModel
             ReplaceData(data);
         }
 
-		// Use the original file as a template while generating new file contents
-		// to make sure the format is consistent and comments are not lost
-		public override void Commit(Stream inputStream, Stream outputStream)
+        // Use the original file as a template while generating new file contents
+        // to make sure the format is consistent and comments are not lost
+        internal override void Commit(Stream inputStream, Stream outputStream)
         {
             var processedKeys = new HashSet<string>();
             var outputWriter = new StreamWriter(outputStream);
@@ -191,8 +191,8 @@ namespace Microsoft.Framework.ConfigurationModel
             }
         }
 
-		// Write the contents of newly created config file to given stream
-		public override void GenerateNewConfig(Stream outputStream)
+        // Write the contents of newly created config file to given stream
+        internal override void GenerateNewConfig(Stream outputStream)
         {
             var outputWriter = new StreamWriter(outputStream);
 

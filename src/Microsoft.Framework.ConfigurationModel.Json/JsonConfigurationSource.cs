@@ -13,15 +13,15 @@ namespace Microsoft.Framework.ConfigurationModel
 {
     public class JsonConfigurationSource : BaseStreamConfigurationSource, ICommitableConfigurationSource
     {
-		public JsonConfigurationSource(string path)
-			: this(new FileConfigurationStreamHandler(), path)
-		{ }
+        public JsonConfigurationSource(string path)
+            : this(new FileConfigurationStreamHandler(), path)
+        { }
 
-		public JsonConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
-			: base(streamHandler, path)
-		{ }
+        public JsonConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
+            : base(streamHandler, path)
+        { }
 
-        public override void Load(Stream stream)
+        internal override void Load(Stream stream)
         {
             var data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -100,9 +100,9 @@ namespace Microsoft.Framework.ConfigurationModel
             ReplaceData(data);
         }
 
-		// Use the original file as a template while generating new file contents
-		// to make sure the format is consistent and comments are not lost
-		public override void Commit(Stream inputStream, Stream outputStream)
+        // Use the original file as a template while generating new file contents
+        // to make sure the format is consistent and comments are not lost
+        internal override void Commit(Stream inputStream, Stream outputStream)
         {
             var processedKeys = new HashSet<string>();
             var outputWriter = new JsonTextWriter(new StreamWriter(outputStream));
@@ -195,8 +195,8 @@ namespace Microsoft.Framework.ConfigurationModel
             }
         }
 
-		// Write the contents of newly created config file to given stream
-		public override void GenerateNewConfig(Stream outputStream)
+        // Write the contents of newly created config file to given stream
+        internal override void GenerateNewConfig(Stream outputStream)
         {
             var outputWriter = new JsonTextWriter(new StreamWriter(outputStream));
             outputWriter.Formatting = Formatting.Indented;

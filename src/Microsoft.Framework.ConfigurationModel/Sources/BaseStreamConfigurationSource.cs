@@ -5,88 +5,88 @@ namespace Microsoft.Framework.ConfigurationModel
 {
     public abstract class BaseStreamConfigurationSource : BaseConfigurationSource
     {
-		protected readonly IConfigurationStreamHandler streamHandler;
+        protected readonly IConfigurationStreamHandler streamHandler;
 
-		public BaseStreamConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
-		{
-			if (string.IsNullOrEmpty(path))
-			{
-				throw new ArgumentException(Resources.Error_InvalidFilePath, "path");
-			}
+        public BaseStreamConfigurationSource(IConfigurationStreamHandler streamHandler, string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentException(Resources.Error_InvalidFilePath, "path");
+            }
 
-			Path = PathResolver.ResolveAppRelativePath(path);
+            Path = PathResolver.ResolveAppRelativePath(path);
 
-			if (streamHandler == null)
-				throw new ArgumentNullException("streamHandler", "A configuration stream handler must be provided.");
+            if (streamHandler == null)
+                throw new ArgumentNullException("streamHandler", "A configuration stream handler must be provided.");
 
-			this.streamHandler = streamHandler;
-		}
+            this.streamHandler = streamHandler;
+        }
 
-		public string Path { get; private set; }
+        public string Path { get; private set; }
 
-		public override void Load()
-		{
-			using (var stream = streamHandler.ReadStream(Path))
-			{
-				Load(stream);
-			}
-		}
+        public override void Load()
+        {
+            using (var stream = streamHandler.ReadStream(Path))
+            {
+                Load(stream);
+            }
+        }
 
-		public virtual void Commit()
-		{
-			// If the config file is not found in given path
-			// i.e. we don't have a template to follow when generating contents of new config file
-			if (!streamHandler.DoesStreamExist(Path))
-			{
-				var newConfigFileStream = streamHandler.CreateStream(Path);
+        public virtual void Commit()
+        {
+            // If the config file is not found in given path
+            // i.e. we don't have a template to follow when generating contents of new config file
+            if (!streamHandler.DoesStreamExist(Path))
+            {
+                var newConfigFileStream = streamHandler.CreateStream(Path);
 
-				try
-				{
-					// Generate contents and write it to the newly created config file
-					GenerateNewConfig(newConfigFileStream);
-				}
-				catch
-				{
-					newConfigFileStream.Dispose();
+                try
+                {
+                    // Generate contents and write it to the newly created config file
+                    GenerateNewConfig(newConfigFileStream);
+                }
+                catch
+                {
+                    newConfigFileStream.Dispose();
 
-					// The operation should be atomic because we don't want a corrupted config file
-					// So we roll back if the operation fails
-					if (streamHandler.DoesStreamExist(Path))
-					{
-						streamHandler.DeleteStream(Path);
-					}
+                    // The operation should be atomic because we don't want a corrupted config file
+                    // So we roll back if the operation fails
+                    if (streamHandler.DoesStreamExist(Path))
+                    {
+                        streamHandler.DeleteStream(Path);
+                    }
 
-					// Rethrow the exception
-					throw;
-				}
-				finally
-				{
-					newConfigFileStream.Dispose();
-				}
+                    // Rethrow the exception
+                    throw;
+                }
+                finally
+                {
+                    newConfigFileStream.Dispose();
+                }
 
-				return;
-			}
+                return;
+            }
 
-			// Because we need to read the original contents while generating new contents, the new contents are
-			// cached in memory and used to overwrite original contents after we finish reading the original contents
-			using (var cacheStream = new MemoryStream())
-			{
-				using (var inputStream = streamHandler.ReadStream(Path))
-				{
-					Commit(inputStream, cacheStream);
-				}
+            // Because we need to read the original contents while generating new contents, the new contents are
+            // cached in memory and used to overwrite original contents after we finish reading the original contents
+            using (var cacheStream = new MemoryStream())
+            {
+                using (var inputStream = streamHandler.ReadStream(Path))
+                {
+                    Commit(inputStream, cacheStream);
+                }
 
-				// Use the cached new contents to overwrite original contents
-				cacheStream.Seek(0, SeekOrigin.Begin);
+                // Use the cached new contents to overwrite original contents
+                cacheStream.Seek(0, SeekOrigin.Begin);
 
-				streamHandler.WriteStream(cacheStream, Path);
-			}
-		}
+                streamHandler.WriteStream(cacheStream, Path);
+            }
+        }
 
-		public abstract void GenerateNewConfig(Stream outputStream);
+        internal abstract void GenerateNewConfig(Stream outputStream);
 
-		public abstract void Load(Stream stream);
+        internal abstract void Load(Stream stream);
 
-		public abstract void Commit(Stream inputStream, Stream outputStream);
+        internal abstract void Commit(Stream inputStream, Stream outputStream);
     }
 }
