@@ -86,10 +86,10 @@ namespace Microsoft.Framework.ConfigurationModel
             }
         }
 
-        internal abstract void GenerateNewConfig(Stream outputStream);
+        public abstract void GenerateNewConfig(Stream outputStream);
 
-        internal abstract void Load(Stream stream);
+        public abstract void Load(Stream stream);
 
-        internal abstract void Commit(Stream inputStream, Stream outputStream);
+        public abstract void Commit(Stream inputStream, Stream outputStream);
     }
 }

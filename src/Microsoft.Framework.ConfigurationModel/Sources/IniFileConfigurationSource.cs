@@ -41,7 +41,7 @@ namespace Microsoft.Framework.ConfigurationModel
             : base(streamHandler, path)
         { }
 
-        internal override void Load(Stream stream)
+        public override void Load(Stream stream)
         {
             var data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -102,7 +102,7 @@ namespace Microsoft.Framework.ConfigurationModel
 
         // Use the original file as a template while generating new file contents
         // to make sure the format is consistent and comments are not lost
-        internal override void Commit(Stream inputStream, Stream outputStream)
+        public override void Commit(Stream inputStream, Stream outputStream)
         {
             var processedKeys = new HashSet<string>();
             var outputWriter = new StreamWriter(outputStream);
@@ -192,7 +192,7 @@ namespace Microsoft.Framework.ConfigurationModel
         }
 
         // Write the contents of newly created config file to given stream
-        internal override void GenerateNewConfig(Stream outputStream)
+        public override void GenerateNewConfig(Stream outputStream)
         {
             var outputWriter = new StreamWriter(outputStream);
 
