@@ -200,8 +200,6 @@ namespace Microsoft.Framework.ConfigurationModel
             {
                 outputWriter.WriteLine(string.Format("{0}={1}", entry.Key, entry.Value));
             }
-
-            outputWriter.Flush();
         }
     }
 }

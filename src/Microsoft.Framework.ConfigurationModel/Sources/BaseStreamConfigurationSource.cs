@@ -42,8 +42,11 @@ namespace Microsoft.Framework.ConfigurationModel
 
                 try
                 {
-                    // Generate contents and write it to the newly created config file
+                    // Generate contents to the newly created config file
                     GenerateNewConfig(newConfigFileStream);
+
+                    //  Write the newly created config
+                    streamHandler.WriteStream(newConfigFileStream, Path);
                 }
                 catch
                 {

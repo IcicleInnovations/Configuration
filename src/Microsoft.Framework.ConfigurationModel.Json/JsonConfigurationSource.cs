@@ -208,8 +208,6 @@ namespace Microsoft.Framework.ConfigurationModel
                 outputWriter.WriteValue(entry.Value);
             }
             outputWriter.WriteEndObject();
-
-            outputWriter.Flush();
         }
 
         private void SkipComments(JsonReader reader)

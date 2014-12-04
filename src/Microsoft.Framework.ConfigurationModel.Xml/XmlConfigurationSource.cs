@@ -284,7 +284,6 @@ namespace Microsoft.Framework.ConfigurationModel
             }
 
             outputWriter.WriteEndElement();
-            outputWriter.Flush();
         }
 
         private void SkipUntilRootElement(XmlReader reader)
